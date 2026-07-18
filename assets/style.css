@@ -1,0 +1,932 @@
+/* ============================================================
+   Physiotherapie Miriam Kammann – Stylesheet
+   Palette: Beere / Rosé / Creme / Pflaume
+   ============================================================ */
+
+:root {
+  --beere:        #A02458;
+  --beere-dunkel: #7C1B44;
+  --beere-tief:   #5C1332;
+  --beere-hell:   #C4487F;
+  --rose:         #F7EAF1;
+  --rose-tief:    #EDD5E1;
+  --creme:        #FBF7F4;
+  --weiss:        #FFFFFF;
+  --pflaume:      #3A2430;
+  --grau:         #715A66;
+  --linie:        #E9DCE3;
+
+  --schatten-s: 0 1px 3px rgba(92, 19, 50, 0.08);
+  --schatten-m: 0 10px 30px -12px rgba(92, 19, 50, 0.22);
+  --schatten-l: 0 24px 50px -20px rgba(92, 19, 50, 0.35);
+
+  --radius-s: 10px;
+  --radius-m: 16px;
+  --radius-l: 24px;
+
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --inhalt-breite: 1120px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--pflaume);
+  background: var(--creme);
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg { max-width: 100%; display: block; }
+
+a { color: var(--beere); text-decoration: none; }
+a:hover { color: var(--beere-dunkel); }
+
+.inhalt {
+  max-width: var(--inhalt-breite);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- Typografie ---------- */
+
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--pflaume);
+}
+
+h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.7rem, 3.4vw, 2.4rem); letter-spacing: -0.01em; }
+h3 { font-size: 1.25rem; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--beere);
+  margin-bottom: 14px;
+}
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  background: var(--beere);
+  border-radius: 2px;
+}
+
+.abschnitt-kopf { max-width: 640px; margin-bottom: 48px; }
+.abschnitt-kopf p { margin-top: 14px; color: var(--grau); font-size: 1.05rem; }
+
+.sektion-banner {
+  display: block;
+  width: 100%;
+  aspect-ratio: 21 / 6;
+  object-fit: cover;
+  border-radius: var(--radius-l);
+  box-shadow: var(--schatten-m);
+  margin-bottom: 48px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.98rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+.btn svg { width: 17px; height: 17px; flex: none; }
+
+.btn-primaer {
+  background: var(--beere);
+  color: var(--weiss);
+  box-shadow: var(--schatten-m);
+}
+.btn-primaer:hover {
+  background: var(--beere-dunkel);
+  color: var(--weiss);
+  transform: translateY(-2px);
+  box-shadow: var(--schatten-l);
+}
+
+.btn-hell {
+  background: var(--weiss);
+  color: var(--beere);
+  box-shadow: var(--schatten-s);
+  border: 1.5px solid var(--rose-tief);
+}
+.btn-hell:hover {
+  border-color: var(--beere-hell);
+  color: var(--beere-dunkel);
+  transform: translateY(-2px);
+}
+
+.btn-invers {
+  background: var(--weiss);
+  color: var(--beere-dunkel);
+}
+.btn-invers:hover { background: var(--rose); color: var(--beere-tief); transform: translateY(-2px); }
+
+/* ---------- Header ---------- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(251, 247, 244, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--linie);
+}
+
+.header-innen {
+  max-width: 1320px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  min-height: 76px;
+  padding: 10px 0;
+}
+
+.logo { display: flex; align-items: center; gap: 12px; flex: none; }
+.logo-blume { width: 40px; height: 40px; flex: none; }
+.logo-text { line-height: 1.15; }
+.logo-name {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--pflaume);
+  display: block;
+  white-space: nowrap;
+}
+.logo-sub {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--beere);
+  font-weight: 600;
+  display: block;
+  white-space: nowrap;
+}
+
+.logo-aesthetics-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  white-space: nowrap;
+  background: linear-gradient(135deg, var(--beere-hell) 0%, var(--beere) 100%);
+  color: var(--weiss);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 999px;
+  box-shadow: var(--schatten-s);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.logo-aesthetics-badge svg { width: 14px; height: 14px; flex: none; }
+.logo-aesthetics-badge:hover {
+  color: var(--weiss);
+  transform: translateY(-2px);
+  box-shadow: var(--schatten-m);
+}
+
+.nav { display: flex; align-items: center; gap: 4px; }
+.nav a {
+  padding: 8px 13px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--pflaume);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nav a:hover { background: var(--rose); color: var(--beere-dunkel); }
+.nav a.aktiv { background: var(--rose); color: var(--beere); font-weight: 600; }
+
+.header-cta { flex: none; }
+.header-cta .btn { padding: 10px 20px; font-size: 0.92rem; }
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+}
+.nav-toggle svg { width: 26px; height: 26px; stroke: var(--pflaume); }
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--creme) 0%, var(--rose) 55%, #F2DDE8 100%);
+}
+
+.hero-innen {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: center;
+  padding: 80px 0 88px;
+}
+
+.hero h1 { margin: 6px 0 20px; }
+.hero h1 em {
+  font-style: italic;
+  color: var(--beere);
+}
+
+.hero-text {
+  font-size: 1.13rem;
+  color: var(--grau);
+  max-width: 540px;
+  margin-bottom: 30px;
+}
+
+.hero-aktionen { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 36px; }
+
+.hero-fakten { display: flex; flex-wrap: wrap; gap: 10px; }
+.fakt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--rose-tief);
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--beere-dunkel);
+}
+.fakt svg { width: 15px; height: 15px; flex: none; }
+
+.hero-bild { position: relative; display: flex; justify-content: center; }
+.hero-blume {
+  width: min(380px, 80%);
+  filter: drop-shadow(0 20px 35px rgba(92, 19, 50, 0.18));
+}
+
+.hero-deko {
+  position: absolute;
+  right: -140px;
+  top: -140px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(160, 36, 88, 0.10) 0%, rgba(160, 36, 88, 0) 70%);
+  pointer-events: none;
+}
+
+/* ---------- Abschnitte ---------- */
+
+.abschnitt { padding: 88px 0; }
+.abschnitt-weiss { background: var(--weiss); }
+.abschnitt-rose { background: var(--rose); }
+
+/* ---------- Physiotherapie ---------- */
+
+.physio-raster {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.beschwerden-karte {
+  background: linear-gradient(165deg, var(--beere) 0%, var(--beere-dunkel) 78%);
+  color: var(--weiss);
+  border-radius: var(--radius-l);
+  padding: 36px 34px;
+  box-shadow: var(--schatten-l);
+  position: sticky;
+  top: 100px;
+}
+.beschwerden-karte h3 {
+  color: var(--weiss);
+  font-size: 1.45rem;
+  margin-bottom: 8px;
+}
+.beschwerden-karte > p {
+  color: #F3D3E2;
+  font-size: 0.97rem;
+  margin-bottom: 22px;
+}
+.beschwerden-karte ul { list-style: none; display: grid; gap: 11px; }
+.beschwerden-karte li {
+  display: flex;
+  gap: 11px;
+  align-items: baseline;
+  font-size: 0.99rem;
+}
+.beschwerden-karte li::before {
+  content: "✓";
+  font-weight: 700;
+  color: #F0B6D0;
+  flex: none;
+}
+
+.physio-foto {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-l);
+  box-shadow: var(--schatten-m);
+  align-self: center;
+}
+
+/* ---------- Wellness & Preise ---------- */
+
+.preis-raster {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 32px;
+  align-items: stretch;
+}
+
+.preis-featured {
+  background: linear-gradient(165deg, var(--beere) 0%, var(--beere-tief) 90%);
+  border-radius: var(--radius-l);
+  color: var(--weiss);
+  padding: 40px 38px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--schatten-l);
+  position: relative;
+  overflow: hidden;
+}
+.preis-featured::after {
+  content: "";
+  position: absolute;
+  right: -90px;
+  bottom: -90px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 70%);
+}
+.badge {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--weiss);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+.preis-featured h3 { color: var(--weiss); font-size: 1.7rem; margin-bottom: 12px; }
+.preis-featured > p { color: #F3D3E2; font-size: 0.99rem; margin-bottom: 26px; }
+.preis-zeile {
+  margin-top: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  padding-top: 22px;
+  position: relative;
+  z-index: 1;
+}
+.preis-gross {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.preis-einheit { color: #F0B6D0; font-size: 0.95rem; }
+
+.preis-liste { display: grid; gap: 14px; align-content: start; }
+
+.preis-karte {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-m);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  box-shadow: var(--schatten-s);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.preis-karte:hover { transform: translateY(-3px); box-shadow: var(--schatten-m); }
+.preis-karte h3 { font-size: 1.05rem; }
+.preis-karte .dauer { font-size: 0.85rem; color: var(--grau); margin-top: 2px; }
+.preis-karte .abo { font-size: 0.83rem; color: var(--beere); font-weight: 600; margin-top: 4px; }
+.preis-wert {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--beere);
+  white-space: nowrap;
+}
+
+.gutschein {
+  margin-top: 40px;
+  border: 2px dashed var(--beere-hell);
+  background: var(--rose);
+  border-radius: var(--radius-l);
+  padding: 30px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.gutschein-text h3 { margin-bottom: 6px; }
+.gutschein-text p { color: var(--grau); font-size: 0.97rem; max-width: 560px; }
+
+/* ---------- Aesthetics-Teaser ---------- */
+
+.aesthetics-band {
+  background: linear-gradient(135deg, var(--beere-hell) 0%, var(--beere) 55%, var(--beere-dunkel) 120%);
+  border-radius: var(--radius-l);
+  color: var(--weiss);
+  padding: 52px 48px;
+  display: grid;
+  grid-template-columns: 1.4fr auto;
+  gap: 32px;
+  align-items: center;
+  box-shadow: var(--schatten-l);
+  position: relative;
+  overflow: hidden;
+}
+.aesthetics-band::before {
+  content: "";
+  position: absolute;
+  right: -70px;
+  bottom: -70px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 70%);
+}
+.aesthetics-band h2 { color: var(--weiss); margin-bottom: 12px; }
+.aesthetics-band p { color: #F3D3E2; max-width: 560px; }
+.aesthetics-band .badge { margin-bottom: 16px; }
+.aesthetics-band .btn { position: relative; z-index: 1; justify-self: end; }
+.btn-gross { padding: 17px 30px; font-size: 1.02rem; }
+
+/* ---------- Hyaluron ---------- */
+
+.hyaluron-raster {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.hyaluron-text > p { color: var(--grau); margin-bottom: 18px; }
+.hyaluron-text strong { color: var(--pflaume); }
+
+.vorteile { list-style: none; display: grid; gap: 12px; margin: 24px 0; }
+.vorteile li { display: flex; gap: 12px; align-items: baseline; }
+.vorteile li::before {
+  content: "✓";
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--rose);
+  color: var(--beere);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(3px);
+}
+
+.zonen-karte {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: 32px;
+  box-shadow: var(--schatten-m);
+}
+.zonen-karte h3 { margin-bottom: 6px; }
+.zonen-karte > p { color: var(--grau); font-size: 0.94rem; margin-bottom: 20px; }
+.zonen { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; }
+.zonen li {
+  background: var(--rose);
+  color: var(--beere-dunkel);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.beratung-hinweis {
+  margin-top: 24px;
+  background: linear-gradient(135deg, var(--beere) 0%, var(--beere-dunkel) 100%);
+  color: var(--weiss);
+  border-radius: var(--radius-m);
+  padding: 24px 26px;
+}
+.beratung-hinweis h4 {
+  color: var(--weiss);
+  font-family: var(--font-sans);
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.beratung-hinweis p { font-size: 0.92rem; color: #F3D3E2; margin-bottom: 14px; }
+.beratung-hinweis .btn { padding: 10px 20px; font-size: 0.9rem; }
+
+.kleingedruckt { margin-top: 22px; font-size: 0.88rem; color: var(--grau); }
+
+/* ---------- Aesthetics-Seite ---------- */
+
+.aesthetics-hero { text-align: center; padding-top: 64px; }
+.aesthetics-hero-innen { max-width: 640px; }
+.aesthetics-logo-platz {
+  width: 128px;
+  height: 128px;
+  margin: 0 auto 28px;
+}
+.aesthetics-logo-platz img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-l);
+  box-shadow: var(--schatten-m);
+}
+.aesthetics-hero .eyebrow { justify-content: center; }
+.aesthetics-hero .hero-text { margin-left: auto; margin-right: auto; }
+
+.placeholder-raster {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.placeholder-karte {
+  background: var(--weiss);
+  border: 2px dashed var(--rose-tief);
+  border-radius: var(--radius-l);
+  padding: 30px 26px;
+  text-align: center;
+  color: var(--grau);
+}
+.placeholder-karte .icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--rose);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.placeholder-karte .icon svg { width: 22px; height: 22px; stroke: var(--beere); }
+.placeholder-karte h3 { font-size: 1.05rem; margin-bottom: 6px; color: var(--pflaume); }
+.placeholder-karte p { font-size: 0.9rem; }
+
+/* ---------- Praxis / Team ---------- */
+
+.praxis-raster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.zitat {
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--pflaume);
+  border-left: 4px solid var(--beere);
+  padding-left: 24px;
+  margin: 26px 0;
+}
+.zitat-name { font-size: 0.95rem; color: var(--grau); }
+.zitat-name strong { color: var(--beere-dunkel); }
+
+.praxis-text p { color: var(--grau); margin-bottom: 16px; }
+
+.praxis-media { display: grid; gap: 24px; }
+.praxis-foto {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-l);
+  box-shadow: var(--schatten-m);
+}
+
+.quali-karte {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: 34px;
+  box-shadow: var(--schatten-m);
+}
+.quali-karte h3 { margin-bottom: 4px; }
+.quali-karte > p { color: var(--grau); font-size: 0.93rem; margin-bottom: 22px; }
+.quali-liste { list-style: none; display: grid; gap: 12px; }
+.quali-liste li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--rose);
+  border-radius: var(--radius-s);
+  padding: 13px 18px;
+  font-weight: 600;
+  font-size: 0.97rem;
+  color: var(--beere-tief);
+}
+.quali-liste svg { width: 20px; height: 20px; flex: none; stroke: var(--beere); }
+
+.praxis-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+.stat .zahl {
+  font-family: var(--font-serif);
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: var(--beere);
+  line-height: 1.1;
+}
+.stat .label { font-size: 0.88rem; color: var(--grau); }
+
+/* ---------- Jobs ---------- */
+
+.jobs-band {
+  background: linear-gradient(135deg, var(--beere-dunkel) 0%, var(--beere) 55%, var(--beere-hell) 120%);
+  border-radius: var(--radius-l);
+  color: var(--weiss);
+  padding: 52px 48px;
+  display: grid;
+  grid-template-columns: 1.4fr auto;
+  gap: 32px;
+  align-items: center;
+  box-shadow: var(--schatten-l);
+  position: relative;
+  overflow: hidden;
+}
+.jobs-band::before {
+  content: "";
+  position: absolute;
+  left: -70px;
+  top: -70px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+}
+.jobs-band h2 { color: var(--weiss); margin-bottom: 12px; }
+.jobs-band p { color: #F3D3E2; max-width: 620px; }
+.jobs-band .badge { margin-bottom: 16px; }
+.jobs-cta { justify-self: end; }
+
+/* ---------- Kontakt ---------- */
+
+.kontakt-raster {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.kontakt-karte {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius-l);
+  padding: 32px 30px;
+  box-shadow: var(--schatten-s);
+  height: 100%;
+}
+.kontakt-karte h3 { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.kontakt-karte h3 svg { width: 22px; height: 22px; stroke: var(--beere); flex: none; }
+
+.kontakt-liste { list-style: none; display: grid; gap: 16px; }
+.kontakt-liste li { display: grid; gap: 2px; }
+.kontakt-liste .label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grau);
+}
+.kontakt-liste .wert { font-size: 1.02rem; font-weight: 600; color: var(--pflaume); }
+.kontakt-liste a.wert { color: var(--beere); }
+.kontakt-liste a.wert:hover { color: var(--beere-dunkel); text-decoration: underline; }
+
+.maps-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.maps-link svg { width: 15px; height: 15px; }
+
+.zeiten { list-style: none; display: grid; gap: 4px; }
+.zeiten li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 14px;
+  border-radius: var(--radius-s);
+  font-size: 0.98rem;
+}
+.zeiten li:nth-child(odd) { background: var(--creme); }
+.zeiten .tag { font-weight: 600; }
+.zeiten .uhrzeit { color: var(--grau); font-variant-numeric: tabular-nums; }
+.zeiten li.heute {
+  background: var(--beere);
+  color: var(--weiss);
+  box-shadow: var(--schatten-m);
+}
+.zeiten li.heute .uhrzeit { color: #F3D3E2; }
+.zeiten li.heute .tag::after {
+  content: "Heute";
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.22);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 9px;
+  vertical-align: 2px;
+}
+
+.hinweis-karte { background: var(--rose); border-color: var(--rose-tief); }
+.hinweis-karte p { font-size: 0.95rem; color: var(--pflaume); margin-bottom: 14px; }
+.hinweis-karte p:last-of-type { margin-bottom: 0; }
+.hinweis-karte strong { color: var(--beere-dunkel); }
+.hinweis-karte .btn { margin-top: 20px; }
+
+/* ---------- Footer ---------- */
+
+.footer {
+  background: var(--pflaume);
+  color: #D9C7D1;
+  padding: 56px 0 32px;
+  margin-top: 0;
+}
+.footer-raster {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.footer .logo-name { color: var(--weiss); }
+.footer .logo-sub { color: #E3A8C4; }
+.footer p { font-size: 0.93rem; margin-top: 14px; max-width: 320px; }
+.footer h4 {
+  color: var(--weiss);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.footer ul { list-style: none; display: grid; gap: 10px; }
+.footer ul a { color: #D9C7D1; font-size: 0.95rem; }
+.footer ul a:hover { color: var(--weiss); }
+
+.footer-unten {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 26px;
+  font-size: 0.85rem;
+  color: #A98BA0;
+}
+
+/* ---------- Rechtsseiten (Impressum / Datenschutz) ---------- */
+
+.rechtsseite { padding: 72px 0 96px; }
+.rechtsseite .inhalt { max-width: 760px; }
+.rechtsseite h1 { margin-bottom: 30px; }
+.rechtsseite h2 { font-size: 1.35rem; margin: 38px 0 12px; }
+.rechtsseite p, .rechtsseite li { color: var(--grau); margin-bottom: 12px; }
+.rechtsseite ul { padding-left: 22px; }
+.rechtsseite .adressblock {
+  background: var(--weiss);
+  border: 1px solid var(--linie);
+  border-left: 5px solid var(--beere);
+  border-radius: var(--radius-m);
+  padding: 24px 28px;
+  margin: 20px 0;
+}
+.rechtsseite .adressblock p { margin-bottom: 4px; color: var(--pflaume); }
+.zurueck-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 34px;
+}
+
+/* ---------- Scroll-Animationen ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.sichtbar { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1220px) {
+  .nav { display: none; }
+  .nav-toggle { display: block; }
+  .logo-aesthetics-badge { display: none; }
+
+  .header.nav-offen .nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    background: var(--weiss);
+    border-bottom: 1px solid var(--linie);
+    box-shadow: var(--schatten-m);
+    padding: 14px 20px 20px;
+    gap: 4px;
+  }
+  .header.nav-offen .nav a { padding: 13px 16px; font-size: 1.05rem; }
+}
+
+@media (max-width: 1020px) {
+  .hero-innen { grid-template-columns: 1fr; padding: 56px 0 64px; }
+  .hero-bild { order: -1; }
+  .hero-blume { width: min(220px, 55%); }
+
+  .physio-raster,
+  .preis-raster,
+  .hyaluron-raster,
+  .praxis-raster,
+  .placeholder-raster { grid-template-columns: 1fr; }
+
+  .beschwerden-karte { position: static; }
+
+  .jobs-band,
+  .aesthetics-band { grid-template-columns: 1fr; padding: 40px 32px; }
+  .jobs-cta { justify-self: start; }
+  .aesthetics-band .btn { justify-self: start; }
+
+  .kontakt-raster { grid-template-columns: 1fr 1fr; }
+  .kontakt-karte.hinweis-karte { grid-column: 1 / -1; }
+
+  .footer-raster { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 660px) {
+  .abschnitt { padding: 64px 0; }
+  .kontakt-raster { grid-template-columns: 1fr; }
+  .footer-raster { grid-template-columns: 1fr; }
+  .header-cta { display: none; }
+  .preis-karte { flex-direction: row; }
+  .gutschein { padding: 26px 24px; }
+  .jobs-band,
+  .aesthetics-band { padding: 34px 24px; }
+}

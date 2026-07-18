@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" width="900" height="1100">
+  <defs>
+    <linearGradient id="g-team" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A02458"/>
+      <stop offset="100%" stop-color="#5C1332"/>
+    </linearGradient>
+    <pattern id="dots-g-team" width="34" height="34" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.6" fill="#ffffff" opacity="0.10"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="1100" fill="url(#g-team)"/>
+  <rect width="900" height="1100" fill="url(#dots-g-team)"/>
+  <circle cx="201.2" cy="357.9" r="3.2" fill="#ffffff" opacity="0.25"/>
+<circle cx="241.3" cy="647.2" r="3.2" fill="#ffffff" opacity="0.21"/>
+<circle cx="218.3" cy="610.7" r="3.2" fill="#ffffff" opacity="0.26"/>
+<circle cx="650.4" cy="441.2" r="3.2" fill="#ffffff" opacity="0.28"/>
+<circle cx="306.7" cy="652.3" r="3.2" fill="#ffffff" opacity="0.29"/>
+<circle cx="339.1" cy="350.9" r="3.2" fill="#ffffff" opacity="0.2"/>
+<circle cx="764.5" cy="301.6" r="3.2" fill="#ffffff" opacity="0.15"/>
+<circle cx="607.8" cy="532.6" r="3.2" fill="#ffffff" opacity="0.2"/>
+<circle cx="343.6" cy="263.7" r="3.2" fill="#ffffff" opacity="0.15"/>
+<circle cx="426.9" cy="664.5" r="3.2" fill="#ffffff" opacity="0.24"/>
+<circle cx="296.7" cy="645.6" r="3.2" fill="#ffffff" opacity="0.31"/>
+<circle cx="40.7" cy="406.5" r="3.2" fill="#ffffff" opacity="0.19"/>
+<circle cx="597.9" cy="519.9" r="3.2" fill="#ffffff" opacity="0.15"/>
+<circle cx="562.0" cy="403.0" r="3.2" fill="#ffffff" opacity="0.15"/>
+<circle cx="397.2" cy="319.6" r="3.2" fill="#ffffff" opacity="0.15"/>
+<circle cx="323.0" cy="315.1" r="3.2" fill="#ffffff" opacity="0.15"/><g transform="translate(416.0,506.0) scale(0.62)" opacity="0.95">
+      <circle cx="0" cy="-38" r="26" fill="#ffffff"/>
+      <path d="M -48 46 C -48 -2, 48 -2, 48 46 L 48 60 L -48 60 Z" fill="#ffffff"/>
+    </g><g transform="translate(484.0,506.0) scale(0.78)" opacity="1.0">
+      <circle cx="0" cy="-38" r="26" fill="#ffffff"/>
+      <path d="M -48 46 C -48 -2, 48 -2, 48 46 L 48 60 L -48 60 Z" fill="#ffffff"/>
+    </g>
+  <g opacity="0.92">
+    <rect x="290.0" y="1036" width="320" height="34" rx="17" fill="#00000022"/>
+    <text x="450.0" y="1059" text-anchor="middle" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#ffffff" letter-spacing="0.3">FOTO PLATZHALTER · Praxis-Team</text>
+  </g>
+</svg>

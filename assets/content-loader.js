@@ -57,7 +57,7 @@
     });
   }
 
-  fetch("content.json", { cache: "no-store" })
+  fetch("/api/content", { cache: "no-store" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data) return;

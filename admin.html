@@ -237,7 +237,7 @@
   var loginFehlerEl = document.getElementById("loginFehler");
 
   function ladeInhalt() {
-    return fetch("content.json", { cache: "no-store" }).then(function (r) { return r.json(); });
+    return fetch("/api/content", { cache: "no-store" }).then(function (r) { return r.json(); });
   }
 
   function feldElement(feld, wert) {

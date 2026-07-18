@@ -82,8 +82,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return isinstance(password, str) and hash_password(password) == config.get("password_hash")
 
     def do_GET(self):
-        if self.path.split("?")[0] in BLOCKED_PATHS:
+        pfad = self.path.split("?")[0]
+        if pfad in BLOCKED_PATHS:
             self._send_json(404, {"ok": False, "error": "Nicht gefunden"})
+            return
+        if pfad == "/api/content":
+            self._send_json(200, load_content())
             return
         super().do_GET()
 

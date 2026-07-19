@@ -4,3 +4,5 @@ __pycache__/
 .claude/settings.local.json
 node_modules/
 .netlify/
+mkde Vault/
+admin_config.json

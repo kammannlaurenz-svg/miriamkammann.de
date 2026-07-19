@@ -6,9 +6,11 @@ bietet zusätzlich /admin.html mit passwortgeschützten Speicher-Endpunkten.
 """
 import base64
 import hashlib
+import hmac
 import http.server
 import json
 import re
+import secrets
 import sys
 import time
 from pathlib import Path
@@ -22,7 +24,9 @@ UPLOAD_MAX_BYTES = 8 * 1024 * 1024  # 8 MB
 ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp", ".svg"}
 BLOCKED_PATHS = {"/admin_config.json", "/server.py"}
 
-DEFAULT_PASSWORD = "Pusteblume2026"
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_WINDOW_SECONDS = 15 * 60
+FAILED_ATTEMPTS = {}  # ip -> (erster_versuch_ts, anzahl)
 
 
 def hash_password(password: str) -> str:
@@ -32,8 +36,17 @@ def hash_password(password: str) -> str:
 def load_config() -> dict:
     if CONFIG_FILE.exists():
         return json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
-    config = {"password_hash": hash_password(DEFAULT_PASSWORD)}
+    # Kein fest einprogrammiertes Standardpasswort mehr (das stand vorher im
+    # öffentlichen Repo im Klartext) – stattdessen wird beim ersten Start ein
+    # zufälliges Passwort erzeugt und einmalig in der Konsole angezeigt.
+    initial_password = secrets.token_urlsafe(9)
+    config = {"password_hash": hash_password(initial_password)}
     CONFIG_FILE.write_text(json.dumps(config, indent=2), encoding="utf-8")
+    print("=" * 60, flush=True)
+    print("Erstes Admin-Passwort (bitte notieren, wird nur jetzt angezeigt):", flush=True)
+    print("  " + initial_password, flush=True)
+    print("Kann danach jederzeit in /admin.html geändert werden.", flush=True)
+    print("=" * 60, flush=True)
     return config
 
 
@@ -49,6 +62,39 @@ def load_content() -> dict:
 
 def save_content(content: dict) -> None:
     CONTENT_FILE.write_text(json.dumps(content, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def is_rate_limited(ip: str) -> bool:
+    entry = FAILED_ATTEMPTS.get(ip)
+    if not entry:
+        return False
+    first, count = entry
+    if time.time() - first > LOGIN_WINDOW_SECONDS:
+        return False
+    return count >= MAX_LOGIN_ATTEMPTS
+
+
+def record_failed_attempt(ip: str) -> None:
+    now = time.time()
+    first, count = FAILED_ATTEMPTS.get(ip, (now, 0))
+    if now - first > LOGIN_WINDOW_SECONDS:
+        first, count = now, 0
+    FAILED_ATTEMPTS[ip] = (first, count + 1)
+
+
+def clear_failed_attempts(ip: str) -> None:
+    FAILED_ATTEMPTS.pop(ip, None)
+
+
+def sanitize_if_svg(raw: bytes, ext: str) -> bytes:
+    if ext != ".svg":
+        return raw
+    text = raw.decode("utf-8", errors="ignore")
+    text = re.sub(r"<script[\s\S]*?</script>", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\son\w+\s*=\s*\"[^\"]*\"", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\son\w+\s*=\s*'[^']*'", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"javascript:", "", text, flags=re.IGNORECASE)
+    return text.encode("utf-8")
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -79,7 +125,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def _check_password(self, payload) -> bool:
         config = load_config()
         password = (payload or {}).get("password", "")
-        return isinstance(password, str) and hash_password(password) == config.get("password_hash")
+        if not isinstance(password, str) or not password:
+            return False
+        return hmac.compare_digest(hash_password(password), config.get("password_hash", ""))
+
+    def _require_auth(self, payload) -> bool:
+        """Prüft Rate-Limit + Passwort, sendet bei Fehlschlag direkt die Antwort."""
+        ip = self.client_address[0]
+        if is_rate_limited(ip):
+            self._send_json(429, {"ok": False, "error": "Zu viele Fehlversuche. Bitte in 15 Minuten erneut versuchen."})
+            return False
+        if not self._check_password(payload):
+            record_failed_attempt(ip)
+            self._send_json(401, {"ok": False, "error": "Falsches Passwort"})
+            return False
+        clear_failed_attempts(ip)
+        return True
 
     def do_GET(self):
         pfad = self.path.split("?")[0]
@@ -108,16 +169,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         payload = self._read_json_body()
         if payload is None:
             return self._send_json(400, {"ok": False, "error": "Ungültige Anfrage"})
-        if not self._check_password(payload):
-            return self._send_json(401, {"ok": False, "error": "Falsches Passwort"})
+        if not self._require_auth(payload):
+            return
         self._send_json(200, {"ok": True})
 
     def _handle_save(self):
         payload = self._read_json_body()
         if payload is None:
             return self._send_json(400, {"ok": False, "error": "Ungültige Anfrage"})
-        if not self._check_password(payload):
-            return self._send_json(401, {"ok": False, "error": "Falsches Passwort"})
+        if not self._require_auth(payload):
+            return
 
         neue_texte = payload.get("text")
         if not isinstance(neue_texte, dict):
@@ -135,8 +196,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         payload = self._read_json_body()
         if payload is None:
             return self._send_json(400, {"ok": False, "error": "Datei zu groß oder ungültig (max. 8 MB)"})
-        if not self._check_password(payload):
-            return self._send_json(401, {"ok": False, "error": "Falsches Passwort"})
+        if not self._require_auth(payload):
+            return
 
         key = payload.get("key", "")
         filename = payload.get("filename", "")
@@ -161,6 +222,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if len(raw) > UPLOAD_MAX_BYTES:
             return self._send_json(400, {"ok": False, "error": "Datei zu groß (max. 8 MB)"})
 
+        raw = sanitize_if_svg(raw, ext)
+
         IMAGES_DIR.mkdir(parents=True, exist_ok=True)
         for alte_ext in ALLOWED_IMAGE_EXT:
             alte_datei = IMAGES_DIR / (key + alte_ext)
@@ -183,8 +246,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         payload = self._read_json_body()
         if payload is None:
             return self._send_json(400, {"ok": False, "error": "Ungültige Anfrage"})
-        if not self._check_password(payload):
-            return self._send_json(401, {"ok": False, "error": "Falsches Passwort"})
+        if not self._require_auth(payload):
+            return
 
         neues_passwort = payload.get("new_password", "")
         if not isinstance(neues_passwort, str) or len(neues_passwort) < 6:
@@ -201,7 +264,7 @@ def main():
     load_config()
     load_content()
     httpd = http.server.ThreadingHTTPServer(("0.0.0.0", port), Handler)
-    print("Server läuft auf Port %d (Admin-Bereich unter /admin.html)" % port)
+    print("Server läuft auf Port %d (Admin-Bereich unter /admin.html)" % port, flush=True)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

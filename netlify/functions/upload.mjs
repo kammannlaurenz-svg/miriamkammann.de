@@ -1,24 +1,36 @@
 import {
   checkPassword,
+  clientIp,
+  isRateLimited,
+  recordFailedAttempt,
+  clearFailedAttempts,
   readJsonBody,
   loadOverrides,
   saveOverrides,
   imagesStore,
+  sanitizeIfSvg,
   ALLOWED_IMAGE_EXT,
   json,
 } from "./_shared.mjs";
 
 const UPLOAD_MAX_BYTES = 8 * 1024 * 1024;
 
-export default async (req) => {
+export default async (req, context) => {
   const payload = await readJsonBody(req);
   if (payload === null) {
     return json(400, { ok: false, error: "Datei zu groß oder ungültig (max. 8 MB)" });
   }
 
+  const ip = clientIp(req, context);
+  if (await isRateLimited(ip)) {
+    return json(429, { ok: false, error: "Zu viele Fehlversuche. Bitte in 15 Minuten erneut versuchen." });
+  }
+
   if (!(await checkPassword(payload.password))) {
+    await recordFailedAttempt(ip);
     return json(401, { ok: false, error: "Falsches Passwort" });
   }
+  await clearFailedAttempts(ip);
 
   const key = payload.key || "";
   const filename = payload.filename || "";
@@ -48,6 +60,8 @@ export default async (req) => {
   if (buffer.length > UPLOAD_MAX_BYTES) {
     return json(400, { ok: false, error: "Datei zu groß (max. 8 MB)" });
   }
+
+  buffer = sanitizeIfSvg(buffer, contentType);
 
   const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
   await imagesStore().set(key, arrayBuffer, { metadata: { contentType } });

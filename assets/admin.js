@@ -38,6 +38,14 @@
       { key: "wellness_intro", label: "Einleitungstext", typ: "textarea" },
       { key: "wellness_featured_text", label: "Beschreibung Hot-Stone-Massage", typ: "textarea" }
     ]},
+    { titel: "Preise – Massage & Wellness", felder: [
+      { key: "wellness_hotstone_preis", label: "Preis: Hot-Stone-Massage", typ: "text", hinweis: "z. B. 69 €" },
+      { key: "wellness_massage_waerme_preis", label: "Preis: Klassische Massage & Wärme", typ: "text", hinweis: "z. B. 44,50 €" },
+      { key: "wellness_massage_waerme_abo", label: "6er-Abo-Preis: Klassische Massage & Wärme", typ: "text", hinweis: "z. B. Im 6er-Abo: 260,00 €" },
+      { key: "wellness_massage_preis", label: "Preis: Massage", typ: "text", hinweis: "z. B. 29 €" },
+      { key: "wellness_massage_abo", label: "6er-Abo-Preis: Massage", typ: "text", hinweis: "z. B. Im 6er-Abo: 170,00 €" },
+      { key: "wellness_lymphdrainage_preis", label: "Preis: Lymphdrainage", typ: "text", hinweis: "z. B. 29 €" }
+    ]},
     { titel: "Aesthetics-Teaser (Startseite)", felder: [
       { key: "aesthetics_teaser_h2", label: "Überschrift", typ: "text" },
       { key: "aesthetics_teaser_text", label: "Text", typ: "textarea" }

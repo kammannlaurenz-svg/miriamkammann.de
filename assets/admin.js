@@ -176,41 +176,43 @@
       });
     }
 
-    return new Promise(function (resolve, reject) {
-      var url = URL.createObjectURL(datei);
-      var bild = new Image();
+    // Die Datei wird als data:-URL geladen, nicht über URL.createObjectURL():
+    // die Content-Security-Policy in netlify.toml erlaubt bei img-src nur
+    // 'self' und data:, eine blob:-URL würde der Browser blockieren.
+    return dateiAlsDataUrl(datei).then(function (quelle) {
+      return new Promise(function (resolve, reject) {
+        var bild = new Image();
 
-      bild.onload = function () {
-        URL.revokeObjectURL(url);
-        var faktor = Math.min(1, MAX_KANTE / Math.max(bild.naturalWidth, bild.naturalHeight));
-        var breite = Math.max(1, Math.round(bild.naturalWidth * faktor));
-        var hoehe = Math.max(1, Math.round(bild.naturalHeight * faktor));
+        bild.onload = function () {
+          var faktor = Math.min(1, MAX_KANTE / Math.max(bild.naturalWidth, bild.naturalHeight));
+          var breite = Math.max(1, Math.round(bild.naturalWidth * faktor));
+          var hoehe = Math.max(1, Math.round(bild.naturalHeight * faktor));
 
-        var canvas = document.createElement("canvas");
-        canvas.width = breite;
-        canvas.height = hoehe;
-        var ctx = canvas.getContext("2d");
-        if (!ctx) { reject(new Error("Bild konnte nicht verarbeitet werden")); return; }
-        ctx.drawImage(bild, 0, 0, breite, hoehe);
+          var canvas = document.createElement("canvas");
+          canvas.width = breite;
+          canvas.height = hoehe;
+          var ctx = canvas.getContext("2d");
+          if (!ctx) { reject(new Error("Bild konnte nicht verarbeitet werden")); return; }
+          ctx.drawImage(bild, 0, 0, breite, hoehe);
 
-        var data;
-        if (datei.type === "image/png") {
-          data = canvas.toDataURL("image/png");
-          if (data.length * 0.75 <= PNG_GRENZE_BYTES) {
-            resolve({ data: data, filename: endungTauschen(datei.name, ".png") });
-            return;
+          var data;
+          if (datei.type === "image/png") {
+            data = canvas.toDataURL("image/png");
+            if (data.length * 0.75 <= PNG_GRENZE_BYTES) {
+              resolve({ data: data, filename: endungTauschen(datei.name, ".png") });
+              return;
+            }
           }
-        }
-        data = canvas.toDataURL("image/jpeg", JPEG_QUALITAET);
-        resolve({ data: data, filename: endungTauschen(datei.name, ".jpg") });
-      };
+          data = canvas.toDataURL("image/jpeg", JPEG_QUALITAET);
+          resolve({ data: data, filename: endungTauschen(datei.name, ".jpg") });
+        };
 
-      bild.onerror = function () {
-        URL.revokeObjectURL(url);
-        reject(new Error("Datei ist kein lesbares Bild"));
-      };
+        bild.onerror = function () {
+          reject(new Error("Datei ist kein lesbares Bild"));
+        };
 
-      bild.src = url;
+        bild.src = quelle;
+      });
     });
   }
 

@@ -67,9 +67,62 @@
   .gruppe-inhalt { padding: 4px 22px 22px; }
 
   .bild-karte { display: grid; grid-template-columns: 160px 1fr; gap: 18px; align-items: start; margin-bottom: 8px; }
-  .bild-karte img { width: 160px; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid var(--linie); background: var(--rose); }
+  .bild-karte .vorschau { width: 160px; height: 120px; overflow: hidden; border-radius: 10px; border: 1px solid var(--linie); background: var(--rose); }
+  .bild-karte .vorschau img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .bild-karte .bild-titel { font-weight: 700; margin-bottom: 4px; }
   .bild-karte .hinweis { font-size: 0.82rem; color: var(--grau); margin-bottom: 10px; }
+  .bild-aktionen { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .bild-aktionen .btn { padding: 8px 15px; font-size: 0.85rem; }
+
+  /* ---------- Bildausschnitt-Werkzeug ---------- */
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(46, 20, 34, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal[hidden] { display: none; }
+  .modal-box {
+    background: var(--weiss);
+    border-radius: var(--radius-l);
+    box-shadow: var(--schatten-m);
+    padding: 26px;
+    width: 100%;
+    max-width: 620px;
+    max-height: 100%;
+    overflow-y: auto;
+  }
+  .modal-box h2 { font-size: 1.15rem; margin-bottom: 6px; }
+  .modal-box > .hinweis { font-size: 0.85rem; color: var(--grau); margin-bottom: 16px; }
+
+  .rahmen-buehne {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid var(--linie);
+    background: var(--rose);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .rahmen-buehne.zieht { cursor: grabbing; }
+  .rahmen-buehne img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  input[type="range"] { width: 100%; accent-color: var(--beere); }
+  .modal-aktionen { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 18px; }
+  .modal-aktionen .btn { padding: 10px 18px; font-size: 0.9rem; }
+  .modal-aktionen .abstand-rechts { margin-right: auto; }
 
   .leiste {
     position: sticky;
@@ -99,8 +152,15 @@
   .passwort-zeile .feld { flex: 1; min-width: 180px; margin-bottom: 0; }
 
   @media (max-width: 560px) {
+    .admin-wrap { padding: 24px 14px 80px; }
+    .login-karte { margin: 48px 12px; padding: 26px 20px; }
     .bild-karte { grid-template-columns: 1fr; }
-    .bild-karte img { width: 100%; height: 160px; }
+    .bild-karte .vorschau { width: 100%; height: 160px; }
+    .gruppe-inhalt { padding: 4px 16px 18px; }
+    details.gruppe > summary { padding: 15px 16px; }
+    .modal { padding: 10px; }
+    .modal-box { padding: 20px 16px; }
+    .modal-aktionen .btn { flex: 1 1 auto; justify-content: center; }
   }
 </style>
 </head>
@@ -148,6 +208,30 @@
       <button class="btn btn-hell" id="passwortAendernButton">Ändern</button>
     </div>
     <p class="status" id="passwortStatus" style="margin-top:10px;"></p>
+  </div>
+</div>
+
+<div class="modal" id="ausschnittModal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="ausschnittTitel">
+    <h2 id="ausschnittTitel">Bildausschnitt festlegen</h2>
+    <p class="hinweis" id="ausschnittHinweis">Bild mit der Maus oder dem Finger verschieben, mit dem Regler vergrößern. So sieht der Ausschnitt später auf der Webseite aus.</p>
+
+    <div class="rahmen-buehne" id="ausschnittRahmen">
+      <img id="ausschnittBild" alt="Vorschau des Bildausschnitts">
+    </div>
+
+    <div class="feld" style="margin-top:16px;">
+      <label for="ausschnittZoom">Vergrößerung</label>
+      <input type="range" id="ausschnittZoom" min="1" max="3" step="0.01" value="1">
+    </div>
+
+    <p class="status" id="ausschnittStatus"></p>
+
+    <div class="modal-aktionen">
+      <button class="btn btn-hell abstand-rechts" id="ausschnittZuruecksetzen">Zurücksetzen</button>
+      <button class="btn btn-hell" id="ausschnittAbbrechen">Abbrechen</button>
+      <button class="btn btn-primaer" id="ausschnittSpeichern">Übernehmen</button>
+    </div>
   </div>
 </div>
 

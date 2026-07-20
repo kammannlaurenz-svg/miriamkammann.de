@@ -108,12 +108,12 @@ export function sanitizeIfSvg(buffer, contentType) {
 
 export async function loadOverrides() {
   const raw = await contentStore().get("overrides");
-  if (!raw) return { text: {}, images: {} };
+  if (!raw) return { text: {}, images: {}, framing: {} };
   try {
     const parsed = JSON.parse(raw);
-    return { text: parsed.text || {}, images: parsed.images || {} };
+    return { text: parsed.text || {}, images: parsed.images || {}, framing: parsed.framing || {} };
   } catch {
-    return { text: {}, images: {} };
+    return { text: {}, images: {}, framing: {} };
   }
 }
 
@@ -125,6 +125,23 @@ export function mergedContent(overrides) {
   return {
     text: { ...defaultContent.text, ...overrides.text },
     images: { ...defaultContent.images, ...overrides.images },
+    framing: { ...(defaultContent.framing || {}), ...overrides.framing },
+  };
+}
+
+// Bildausschnitt: x/y sind Prozentwerte (object-position), zoom ist ein Faktor.
+// Werte werden hart begrenzt, damit über die API nichts Unsinniges ins CSS wandert.
+export function sanitizeFraming(wert) {
+  if (!wert || typeof wert !== "object") return null;
+  const zahl = (v, min, max, standard) => {
+    const n = typeof v === "number" ? v : parseFloat(v);
+    if (!isFinite(n)) return standard;
+    return Math.min(max, Math.max(min, Math.round(n * 100) / 100));
+  };
+  return {
+    x: zahl(wert.x, 0, 100, 50),
+    y: zahl(wert.y, 0, 100, 50),
+    zoom: zahl(wert.zoom, 1, 3, 1),
   };
 }
 

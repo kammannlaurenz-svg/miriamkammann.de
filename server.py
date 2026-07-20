@@ -57,7 +57,31 @@ def save_config(config: dict) -> None:
 def load_content() -> dict:
     if CONTENT_FILE.exists():
         return json.loads(CONTENT_FILE.read_text(encoding="utf-8"))
-    return {"text": {}, "images": {}}
+    return {"text": {}, "images": {}, "framing": {}}
+
+
+def sanitize_framing(wert):
+    """Bildausschnitt: x/y als Prozentwerte (object-position), zoom als Faktor.
+
+    Werte werden hart begrenzt, damit über die API nichts Unsinniges ins CSS wandert.
+    """
+    if not isinstance(wert, dict):
+        return None
+
+    def zahl(v, minimum, maximum, standard):
+        try:
+            n = float(v)
+        except (TypeError, ValueError):
+            return standard
+        if n != n or n in (float("inf"), float("-inf")):
+            return standard
+        return round(min(maximum, max(minimum, n)), 2)
+
+    return {
+        "x": zahl(wert.get("x"), 0, 100, 50),
+        "y": zahl(wert.get("y"), 0, 100, 50),
+        "zoom": zahl(wert.get("zoom"), 1, 3, 1),
+    }
 
 
 def save_content(content: dict) -> None:
@@ -181,14 +205,29 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         neue_texte = payload.get("text")
-        if not isinstance(neue_texte, dict):
-            return self._send_json(400, {"ok": False, "error": "Kein Textinhalt übergeben"})
+        neues_framing = payload.get("framing")
+        hat_texte = isinstance(neue_texte, dict)
+        hat_framing = isinstance(neues_framing, dict)
+        if not hat_texte and not hat_framing:
+            return self._send_json(400, {"ok": False, "error": "Kein Inhalt übergeben"})
 
         content = load_content()
         content.setdefault("text", {})
-        for key, value in neue_texte.items():
-            if isinstance(key, str) and isinstance(value, str):
-                content["text"][key] = value
+        content.setdefault("framing", {})
+
+        if hat_texte:
+            for key, value in neue_texte.items():
+                if isinstance(key, str) and isinstance(value, str):
+                    content["text"][key] = value
+
+        if hat_framing:
+            for key, value in neues_framing.items():
+                if not isinstance(key, str) or not re.fullmatch(r"[a-z0-9_]+", key):
+                    continue
+                sauber = sanitize_framing(value)
+                if sauber:
+                    content["framing"][key] = sauber
+
         save_content(content)
         self._send_json(200, {"ok": True})
 

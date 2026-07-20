@@ -57,12 +57,30 @@
     });
   }
 
+  /* Bildausschnitt: x/y verschieben den sichtbaren Bereich, zoom vergrößert ihn.
+     Muss identisch zur Vorschau im Admin-Tool sein (assets/admin.js). */
+  function applyFraming(framing) {
+    Object.keys(framing).forEach(function (key) {
+      var werte = framing[key];
+      if (!werte) return;
+      var x = typeof werte.x === "number" ? werte.x : 50;
+      var y = typeof werte.y === "number" ? werte.y : 50;
+      var zoom = typeof werte.zoom === "number" ? werte.zoom : 1;
+      document.querySelectorAll('[data-img-key="' + key + '"]').forEach(function (el) {
+        el.style.objectPosition = x + "% " + y + "%";
+        el.style.transformOrigin = x + "% " + y + "%";
+        el.style.transform = zoom === 1 ? "" : "scale(" + zoom + ")";
+      });
+    });
+  }
+
   fetch("/api/content", { cache: "no-store" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data) return;
       if (data.text) applyText(data.text);
       if (data.images) applyImages(data.images);
+      if (data.framing) applyFraming(data.framing);
     })
     .catch(function () { /* content.json fehlt oder Seite läuft ohne Server – Standardinhalte bleiben stehen */ });
 })();

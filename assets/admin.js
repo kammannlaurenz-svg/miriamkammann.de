@@ -76,24 +76,145 @@
     ]}
   ];
 
+  /* "ratio" ist das Seitenverhältnis, in dem das Bild auf der Webseite
+     beschnitten wird – die Ausschnitt-Vorschau benutzt exakt denselben Wert. */
   var BILD_FELDER = [
-    { key: "img_praxis_team", label: "Foto: Praxis-Team", hinweis: "Erscheint bei „Praxis & Team“ – Querformat ca. 4:3." },
-    { key: "img_physio", label: "Foto: Physiotherapie", hinweis: "Breites Titelbild – Querformat ca. 21:6." },
-    { key: "img_wellness", label: "Foto: Massage & Wellness", hinweis: "Breites Titelbild – Querformat ca. 21:6." },
-    { key: "img_hyaluron", label: "Foto: Hyaluron", hinweis: "Breites Titelbild – Querformat ca. 21:6." },
-    { key: "img_aesthetics_logo", label: "Logo: Aesthetics-Seite", hinweis: "Erscheint oben auf der Aesthetics-Unterseite – am besten quadratisch." }
+    { key: "img_praxis_team", label: "Foto: Praxis-Team", ratio: 4 / 3, hinweis: "Erscheint bei „Praxis & Team“ – Querformat ca. 4:3." },
+    { key: "img_physio", label: "Foto: Physiotherapie", ratio: 4 / 3, hinweis: "Erscheint im Bereich Physiotherapie – Querformat ca. 4:3." },
+    { key: "img_wellness", label: "Foto: Massage & Wellness", ratio: 21 / 6, hinweis: "Breites Titelbild – Querformat ca. 21:6." },
+    { key: "img_hyaluron", label: "Foto: Hyaluron", ratio: 21 / 6, hinweis: "Breites Titelbild – Querformat ca. 21:6." },
+    { key: "img_aesthetics_logo", label: "Logo: Aesthetics-Seite", ratio: 1, hinweis: "Erscheint oben auf der Aesthetics-Unterseite – am besten quadratisch." }
   ];
 
+  /* Große Handy-Fotos werden vor dem Hochladen verkleinert. Grund: die Datei
+     wird als Base64 im JSON-Body verschickt (+33 % Größe) und Netlify lehnt
+     Anfragen über ~6 MB ab, bevor sie überhaupt im Backend ankommen. */
+  var MAX_KANTE = 2000;
+  var JPEG_QUALITAET = 0.85;
+  var PNG_GRENZE_BYTES = 3 * 1024 * 1024;
+
   var passwort = sessionStorage.getItem("admin_pw") || "";
-  var aktuellerInhalt = { text: {}, images: {} };
+  var aktuellerInhalt = { text: {}, images: {}, framing: {} };
 
   var loginEl = document.getElementById("login");
   var editorEl = document.getElementById("editor");
   var loginFehlerEl = document.getElementById("loginFehler");
 
-  function ladeInhalt() {
-    return fetch("/api/content", { cache: "no-store" }).then(function (r) { return r.json(); });
+  /* ---------- Hilfsfunktionen ---------- */
+
+  /* Antworten robust lesen: liefert der Server (oder Netlify selbst) HTML statt
+     JSON – etwa bei "Datei zu groß" –, gab es früher nur "Verbindung
+     fehlgeschlagen". Jetzt kommt eine Meldung, die den Grund benennt. */
+  function antwortLesen(r) {
+    return r.text().then(function (roh) {
+      var daten = null;
+      try { daten = JSON.parse(roh); } catch (e) { daten = null; }
+      if (daten) return { ok: r.ok, d: daten };
+      var meldung;
+      if (r.status === 413) meldung = "Die Datei ist zu groß für den Server.";
+      else if (r.status === 429) meldung = "Zu viele Versuche. Bitte 15 Minuten warten.";
+      else if (r.status === 401) meldung = "Falsches Passwort. Bitte neu anmelden.";
+      else meldung = "Unerwartete Antwort vom Server (Status " + r.status + ").";
+      return { ok: false, d: { ok: false, error: meldung } };
+    });
   }
+
+  function istSvg(pfad) {
+    return /\.svg(\?|$)/i.test(pfad || "");
+  }
+
+  function framingVon(key) {
+    var w = aktuellerInhalt.framing && aktuellerInhalt.framing[key];
+    return {
+      x: w && typeof w.x === "number" ? w.x : 50,
+      y: w && typeof w.y === "number" ? w.y : 50,
+      zoom: w && typeof w.zoom === "number" ? w.zoom : 1
+    };
+  }
+
+  /* Muss identisch zu applyFraming() in assets/content-loader.js sein,
+     sonst zeigt die Vorschau etwas anderes als die Webseite. */
+  function framingAnwenden(imgEl, werte) {
+    imgEl.style.objectPosition = werte.x + "% " + werte.y + "%";
+    imgEl.style.transformOrigin = werte.x + "% " + werte.y + "%";
+    imgEl.style.transform = werte.zoom === 1 ? "" : "scale(" + werte.zoom + ")";
+  }
+
+  /* Prüft, ob eine Bild-URL tatsächlich ladbar ist. Damit fällt sofort auf,
+     wenn das Hochladen zwar gemeldet wird, das Bild aber nicht ausgeliefert
+     werden kann (dann bliebe es auf der Webseite unsichtbar). */
+  function bildErreichbar(pfad) {
+    return new Promise(function (resolve) {
+      var pruef = new Image();
+      pruef.onload = function () { resolve(true); };
+      pruef.onerror = function () { resolve(false); };
+      pruef.src = pfad;
+    });
+  }
+
+  function dateiAlsDataUrl(datei) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(reader.result); };
+      reader.onerror = function () { reject(new Error("Datei konnte nicht gelesen werden")); };
+      reader.readAsDataURL(datei);
+    });
+  }
+
+  function endungTauschen(dateiname, neueEndung) {
+    var punkt = dateiname.lastIndexOf(".");
+    var basis = punkt === -1 ? dateiname : dateiname.slice(0, punkt);
+    return (basis || "bild") + neueEndung;
+  }
+
+  /* Liefert { data, filename } – bei SVG unverändert, sonst herunterskaliert.
+     PNG bleibt PNG (Transparenz), außer das Ergebnis wäre zu groß. */
+  function bildVorbereiten(datei) {
+    if (datei.type === "image/svg+xml") {
+      return dateiAlsDataUrl(datei).then(function (data) {
+        return { data: data, filename: datei.name };
+      });
+    }
+
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(datei);
+      var bild = new Image();
+
+      bild.onload = function () {
+        URL.revokeObjectURL(url);
+        var faktor = Math.min(1, MAX_KANTE / Math.max(bild.naturalWidth, bild.naturalHeight));
+        var breite = Math.max(1, Math.round(bild.naturalWidth * faktor));
+        var hoehe = Math.max(1, Math.round(bild.naturalHeight * faktor));
+
+        var canvas = document.createElement("canvas");
+        canvas.width = breite;
+        canvas.height = hoehe;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) { reject(new Error("Bild konnte nicht verarbeitet werden")); return; }
+        ctx.drawImage(bild, 0, 0, breite, hoehe);
+
+        var data;
+        if (datei.type === "image/png") {
+          data = canvas.toDataURL("image/png");
+          if (data.length * 0.75 <= PNG_GRENZE_BYTES) {
+            resolve({ data: data, filename: endungTauschen(datei.name, ".png") });
+            return;
+          }
+        }
+        data = canvas.toDataURL("image/jpeg", JPEG_QUALITAET);
+        resolve({ data: data, filename: endungTauschen(datei.name, ".jpg") });
+      };
+
+      bild.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Datei ist kein lesbares Bild"));
+      };
+
+      bild.src = url;
+    });
+  }
+
+  /* ---------- Textfelder ---------- */
 
   function feldElement(feld, wert) {
     var wrapper = document.createElement("div");
@@ -137,6 +258,8 @@
     });
   }
 
+  /* ---------- Bilder ---------- */
+
   function baueBilder(images) {
     var container = document.getElementById("bilderListe");
     container.innerHTML = "";
@@ -144,10 +267,15 @@
       var karte = document.createElement("div");
       karte.className = "bild-karte";
 
+      var vorschau = document.createElement("div");
+      vorschau.className = "vorschau";
       var img = document.createElement("img");
-      img.src = images[feld.key] || "";
+      var pfad = images[feld.key] || "";
+      if (pfad) img.src = pfad;
       img.alt = feld.label;
-      karte.appendChild(img);
+      framingAnwenden(img, framingVon(feld.key));
+      vorschau.appendChild(img);
+      karte.appendChild(vorschau);
 
       var rechts = document.createElement("div");
 
@@ -158,7 +286,7 @@
 
       var hinweis = document.createElement("div");
       hinweis.className = "hinweis";
-      hinweis.textContent = feld.hinweis + " Erlaubt: JPG, PNG, WEBP, SVG (max. 8 MB).";
+      hinweis.textContent = feld.hinweis + " Erlaubt: JPG, PNG, WEBP, SVG. Große Fotos werden automatisch verkleinert.";
       rechts.appendChild(hinweis);
 
       var fileInput = document.createElement("input");
@@ -166,41 +294,75 @@
       fileInput.accept = "image/png,image/jpeg,image/webp,image/svg+xml";
       rechts.appendChild(fileInput);
 
+      var aktionen = document.createElement("div");
+      aktionen.className = "bild-aktionen";
+
+      var ausrichtenButton = document.createElement("button");
+      ausrichtenButton.type = "button";
+      ausrichtenButton.className = "btn btn-hell";
+      ausrichtenButton.textContent = "Ausschnitt anpassen";
+      // Bei den SVG-Platzhaltern ergibt Ausrichten keinen Sinn – erst anbieten,
+      // sobald ein echtes Foto hochgeladen wurde.
+      ausrichtenButton.hidden = !pfad || istSvg(pfad);
+      ausrichtenButton.addEventListener("click", function () {
+        oeffneAusschnitt(feld, img);
+      });
+      aktionen.appendChild(ausrichtenButton);
+
       var status = document.createElement("span");
       status.className = "status";
-      status.style.marginLeft = "10px";
-      rechts.appendChild(status);
+      aktionen.appendChild(status);
+
+      rechts.appendChild(aktionen);
 
       fileInput.addEventListener("change", function () {
         var datei = fileInput.files[0];
         if (!datei) return;
-        status.textContent = "Wird hochgeladen …";
+        status.textContent = "Bild wird vorbereitet …";
         status.className = "status";
-        var reader = new FileReader();
-        reader.onload = function () {
-          fetch("/api/upload", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password: passwort, key: feld.key, filename: datei.name, data: reader.result })
+
+        bildVorbereiten(datei)
+          .then(function (vorbereitet) {
+            status.textContent = "Wird hochgeladen …";
+            return fetch("/api/upload", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                password: passwort,
+                key: feld.key,
+                filename: vorbereitet.filename,
+                data: vorbereitet.data
+              })
+            });
           })
-            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-            .then(function (res) {
-              if (!res.ok || !res.d.ok) {
-                status.textContent = res.d.error || "Fehler beim Hochladen";
+          .then(antwortLesen)
+          .then(function (res) {
+            if (!res.ok || !res.d.ok) {
+              status.textContent = res.d.error || "Fehler beim Hochladen";
+              status.className = "status fehler";
+              return;
+            }
+            status.textContent = "Wird geprüft …";
+            return bildErreichbar(res.d.path).then(function (erreichbar) {
+              if (!erreichbar) {
+                status.textContent = "Gespeichert, aber das Bild lässt sich nicht abrufen – bitte melden.";
                 status.className = "status fehler";
                 return;
               }
               img.src = res.d.path;
               aktuellerInhalt.images[feld.key] = res.d.path;
+              // Neues Bild, neuer Ausschnitt: auf Mitte zurücksetzen.
+              if (aktuellerInhalt.framing) delete aktuellerInhalt.framing[feld.key];
+              framingAnwenden(img, framingVon(feld.key));
+              ausrichtenButton.hidden = istSvg(res.d.path);
               status.textContent = "Gespeichert ✓";
               status.className = "status ok";
-            })
-            .catch(function () {
-              status.textContent = "Verbindung fehlgeschlagen";
-              status.className = "status fehler";
             });
-        };
-        reader.readAsDataURL(datei);
+          })
+          .catch(function (fehler) {
+            status.textContent = (fehler && fehler.message) || "Verbindung fehlgeschlagen";
+            status.className = "status fehler";
+          });
       });
 
       karte.appendChild(rechts);
@@ -208,14 +370,158 @@
     });
   }
 
+  /* ---------- Ausschnitt-Werkzeug ---------- */
+
+  var modal = document.getElementById("ausschnittModal");
+  var buehne = document.getElementById("ausschnittRahmen");
+  var buehneBild = document.getElementById("ausschnittBild");
+  var zoomRegler = document.getElementById("ausschnittZoom");
+  var ausschnittStatus = document.getElementById("ausschnittStatus");
+  var ausschnittTitel = document.getElementById("ausschnittTitel");
+
+  var aktivesFeld = null;
+  var aktiveWerte = { x: 50, y: 50, zoom: 1 };
+  var aktivesVorschauBild = null;
+  var zieht = false;
+  var letzteX = 0;
+  var letzteY = 0;
+
+  function begrenze(wert) {
+    return Math.min(100, Math.max(0, wert));
+  }
+
+  function zeichneAusschnitt() {
+    framingAnwenden(buehneBild, aktiveWerte);
+  }
+
+  function oeffneAusschnitt(feld, vorschauBild) {
+    aktivesFeld = feld;
+    aktivesVorschauBild = vorschauBild;
+    aktiveWerte = framingVon(feld.key);
+
+    ausschnittTitel.textContent = "Ausschnitt: " + feld.label;
+    buehne.style.aspectRatio = String(feld.ratio);
+    buehneBild.src = aktuellerInhalt.images[feld.key] || "";
+    zoomRegler.value = String(aktiveWerte.zoom);
+    ausschnittStatus.textContent = "";
+    ausschnittStatus.className = "status";
+    zeichneAusschnitt();
+    modal.hidden = false;
+  }
+
+  function schliesseAusschnitt() {
+    modal.hidden = true;
+    aktivesFeld = null;
+    aktivesVorschauBild = null;
+    zieht = false;
+  }
+
+  buehne.addEventListener("pointerdown", function (e) {
+    zieht = true;
+    letzteX = e.clientX;
+    letzteY = e.clientY;
+    buehne.classList.add("zieht");
+    buehne.setPointerCapture(e.pointerId);
+  });
+
+  buehne.addEventListener("pointermove", function (e) {
+    if (!zieht) return;
+    var dx = e.clientX - letzteX;
+    var dy = e.clientY - letzteY;
+    letzteX = e.clientX;
+    letzteY = e.clientY;
+    // Mausbewegung nach rechts schiebt das Bild nach rechts, der sichtbare
+    // Ausschnitt wandert also nach links – daher das Minus.
+    aktiveWerte.x = begrenze(aktiveWerte.x - (dx / buehne.clientWidth) * 100 / aktiveWerte.zoom);
+    aktiveWerte.y = begrenze(aktiveWerte.y - (dy / buehne.clientHeight) * 100 / aktiveWerte.zoom);
+    zeichneAusschnitt();
+  });
+
+  function beendeZiehen(e) {
+    if (!zieht) return;
+    zieht = false;
+    buehne.classList.remove("zieht");
+    if (e && e.pointerId !== undefined && buehne.hasPointerCapture(e.pointerId)) {
+      buehne.releasePointerCapture(e.pointerId);
+    }
+  }
+  buehne.addEventListener("pointerup", beendeZiehen);
+  buehne.addEventListener("pointercancel", beendeZiehen);
+
+  zoomRegler.addEventListener("input", function () {
+    aktiveWerte.zoom = parseFloat(zoomRegler.value) || 1;
+    zeichneAusschnitt();
+  });
+
+  document.getElementById("ausschnittZuruecksetzen").addEventListener("click", function () {
+    aktiveWerte = { x: 50, y: 50, zoom: 1 };
+    zoomRegler.value = "1";
+    zeichneAusschnitt();
+  });
+
+  document.getElementById("ausschnittAbbrechen").addEventListener("click", schliesseAusschnitt);
+
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) schliesseAusschnitt();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !modal.hidden) schliesseAusschnitt();
+  });
+
+  document.getElementById("ausschnittSpeichern").addEventListener("click", function () {
+    if (!aktivesFeld) return;
+    var feldKey = aktivesFeld.key;
+    var werte = { x: aktiveWerte.x, y: aktiveWerte.y, zoom: aktiveWerte.zoom };
+    var vorschauBild = aktivesVorschauBild;
+
+    ausschnittStatus.textContent = "Wird gespeichert …";
+    ausschnittStatus.className = "status";
+
+    var framing = {};
+    framing[feldKey] = werte;
+
+    fetch("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: passwort, framing: framing })
+    })
+      .then(antwortLesen)
+      .then(function (res) {
+        if (!res.ok || !res.d.ok) {
+          ausschnittStatus.textContent = res.d.error || "Fehler beim Speichern";
+          ausschnittStatus.className = "status fehler";
+          return;
+        }
+        if (!aktuellerInhalt.framing) aktuellerInhalt.framing = {};
+        aktuellerInhalt.framing[feldKey] = werte;
+        if (vorschauBild) framingAnwenden(vorschauBild, werte);
+        schliesseAusschnitt();
+      })
+      .catch(function () {
+        ausschnittStatus.textContent = "Verbindung zum Server fehlgeschlagen";
+        ausschnittStatus.className = "status fehler";
+      });
+  });
+
+  /* ---------- Login & Speichern ---------- */
+
   function zeigeEditor() {
     loginEl.hidden = true;
     editorEl.hidden = false;
     ladeInhalt().then(function (data) {
-      aktuellerInhalt = data;
-      baueTextGruppen(data.text || {});
-      baueBilder(data.images || {});
+      aktuellerInhalt = {
+        text: data.text || {},
+        images: data.images || {},
+        framing: data.framing || {}
+      };
+      baueTextGruppen(aktuellerInhalt.text);
+      baueBilder(aktuellerInhalt.images);
     });
+  }
+
+  function ladeInhalt() {
+    return fetch("/api/content", { cache: "no-store" }).then(function (r) { return r.json(); });
   }
 
   document.getElementById("loginButton").addEventListener("click", function () {
@@ -226,7 +532,7 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password: eingabe })
     })
-      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(antwortLesen)
       .then(function (res) {
         if (!res.ok || !res.d.ok) {
           loginFehlerEl.textContent = res.d.error || "Anmeldung fehlgeschlagen";
@@ -258,7 +564,7 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password: passwort, text: neueTexte })
     })
-      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(antwortLesen)
       .then(function (res) {
         if (!res.ok || !res.d.ok) {
           statusEl.textContent = res.d.error || "Fehler beim Speichern";
@@ -284,7 +590,7 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password: alt, new_password: neu })
     })
-      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(antwortLesen)
       .then(function (res) {
         if (!res.ok || !res.d.ok) {
           statusEl.textContent = res.d.error || "Fehler beim Ändern";

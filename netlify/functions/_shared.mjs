@@ -18,11 +18,17 @@ export function hashPassword(password) {
 }
 
 export function adminStore() {
-  return getStore("admin");
+  // Strong: nach einer Passwortänderung muss der nächste Login den neuen Hash sehen.
+  return getStore({ name: "admin", consistency: "strong" });
 }
 
+// Strong statt der voreingestellten "eventual" Konsistenz: upload.mjs und save.mjs
+// lesen denselben "overrides"-Blob, ändern ihn und schreiben ihn zurück. Mit
+// eventual consistency konnte save.mjs einen Stand von vor einem kurz zuvor
+// erfolgten Upload lesen und dessen Bild-Override wieder überschreiben – auf der
+// Webseite erschien dann das alte Bild mit dem neuen Ausschnitt.
 export function contentStore() {
-  return getStore("site-content");
+  return getStore({ name: "site-content", consistency: "strong" });
 }
 
 export function imagesStore() {

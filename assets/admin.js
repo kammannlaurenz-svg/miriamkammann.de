@@ -83,7 +83,8 @@
     { key: "img_physio", label: "Foto: Physiotherapie", ratio: 4 / 3, hinweis: "Erscheint im Bereich Physiotherapie – Querformat ca. 4:3." },
     { key: "img_wellness", label: "Foto: Massage & Wellness", ratio: 21 / 6, hinweis: "Breites Titelbild – Querformat ca. 21:6." },
     { key: "img_hyaluron", label: "Foto: Hyaluron", ratio: 21 / 6, hinweis: "Breites Titelbild – Querformat ca. 21:6." },
-    { key: "img_aesthetics_logo", label: "Logo: Aesthetics-Seite", ratio: 1, hinweis: "Erscheint oben auf der Aesthetics-Unterseite – am besten quadratisch." }
+    { key: "img_aesthetics_logo", label: "Logo: Aesthetics-Seite", ratio: 1, hinweis: "Erscheint oben auf der Aesthetics-Unterseite – am besten quadratisch." },
+    { key: "img_angebot", label: "Foto: Aktuelles Angebot", ratio: 9 / 10, hinweis: "Erscheint bei „Aktuelle Angebote“ auf der Aesthetics-Seite – Hochformat ca. 9:10." }
   ];
 
   /* Große Handy-Fotos werden vor dem Hochladen verkleinert. Grund: die Datei

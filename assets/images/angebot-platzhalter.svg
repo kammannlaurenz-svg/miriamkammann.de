@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1000" width="900" height="1000">
+  <defs>
+    <linearGradient id="g-angebot" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBF7F4"/>
+      <stop offset="100%" stop-color="#F3D3E2"/>
+    </linearGradient>
+    <pattern id="dots-angebot" width="34" height="34" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.6" fill="#A02458" opacity="0.10"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="1000" fill="url(#g-angebot)"/>
+  <rect width="900" height="1000" fill="url(#dots-angebot)"/>
+  <g transform="translate(450,430)" stroke="#A02458" stroke-width="7" stroke-linecap="round" fill="none">
+    <line x1="0" y1="0" x2="0" y2="-70"/><line x1="0" y1="0" x2="46" y2="-49"/>
+    <line x1="0" y1="0" x2="-46" y2="-49"/><line x1="0" y1="0" x2="63" y2="-10"/>
+    <line x1="0" y1="0" x2="-63" y2="-10"/>
+  </g>
+  <g transform="translate(450,430)" fill="#C4487F">
+    <circle cx="0" cy="-70" r="10"/><circle cx="46" cy="-49" r="10"/><circle cx="-46" cy="-49" r="10"/>
+    <circle cx="63" cy="-10" r="10"/><circle cx="-63" cy="-10" r="10"/>
+  </g>
+  <circle cx="450" cy="430" r="14" fill="#7C1B44"/>
+  <g>
+    <rect x="290" y="540" width="320" height="40" rx="20" fill="#00000018"/>
+    <text x="450" y="567" text-anchor="middle" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="17" font-weight="600" fill="#A02458" letter-spacing="0.3">FOTO PLATZHALTER · Angebot</text>
+  </g>
+</svg>

@@ -301,7 +301,8 @@ h3 { font-size: 1.25rem; }
 
 .hero-bild { position: relative; display: flex; justify-content: center; }
 .hero-blume {
-  width: min(380px, 80%);
+  width: min(300px, 70%);
+  height: auto;
   filter: drop-shadow(0 20px 35px rgba(92, 19, 50, 0.18));
 }
 

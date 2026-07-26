@@ -56,6 +56,17 @@
       { key: "hyaluron_intro", label: "Einleitungstext", typ: "text" },
       { key: "hyaluron_text_intro", label: "Erster Absatz", typ: "textarea", hinweis: "Wort in **doppelten Sternchen** wird fett dargestellt." }
     ]},
+    { titel: "Aktuelle Angebote (Aesthetics-Seite)", felder: [
+      { key: "angebote_eyebrow", label: "Kicker-Text", typ: "text" },
+      { key: "angebote_h2", label: "Überschrift", typ: "text" },
+      { key: "angebote_intro", label: "Einleitungstext", typ: "textarea" },
+      { key: "angebot_meso_titel", label: "Angebot 1 – Titel", typ: "text", hinweis: "z. B. Mesotherapie" },
+      { key: "angebot_meso_text", label: "Angebot 1 – Beschreibung", typ: "textarea" },
+      { key: "angebot_meso_preis", label: "Angebot 1 – Preis", typ: "text", hinweis: "z. B. ab 150 €" },
+      { key: "angebot_serie_titel", label: "Angebot 2 – Titel", typ: "text", hinweis: "z. B. Behandlungsserie" },
+      { key: "angebot_serie_dauer", label: "Angebot 2 – Zusatz", typ: "text", hinweis: "z. B. 3er-Serie" },
+      { key: "angebot_serie_preis", label: "Angebot 2 – Preis", typ: "text", hinweis: "z. B. 400 €" }
+    ]},
     { titel: "Praxis & Team", felder: [
       { key: "praxis_eyebrow", label: "Kicker-Text", typ: "text" },
       { key: "praxis_h2", label: "Überschrift", typ: "text" },

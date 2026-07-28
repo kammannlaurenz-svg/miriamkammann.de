@@ -7,6 +7,21 @@
 [functions]
   directory = "netlify/functions"
 
+# --- Weiterleitungen alter Jimdo-URLs (301) auf die neuen Seiten ---
+# Verhindert 404 bei URLs, die Google noch aus der alten Seite indexiert hat.
+# Neue alte URLs hier ergänzen (aus Google Search Console / site:miriamkammann.de).
+[[redirects]]
+  from = "/hyaluronsäure-mesotherapie/"
+  to = "/aesthetics.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hyalurons%C3%A4ure-mesotherapie/"
+  to = "/aesthetics.html"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/api/content"
   to = "/.netlify/functions/content"

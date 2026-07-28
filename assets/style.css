@@ -987,3 +987,110 @@ h3 { font-size: 1.25rem; }
   .sektion-banner { aspect-ratio: 3 / 2; }
   .zitat { padding-left: 18px; }
 }
+
+/* ---------- Kontakt-Popup (Anrufen / WhatsApp) ---------- */
+
+body.modal-offen { overflow: hidden; }
+
+.kontakt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.kontakt-modal[hidden] { display: none; }
+
+.kontakt-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(58, 36, 48, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.kontakt-modal.sichtbar .kontakt-modal-overlay { opacity: 1; }
+
+.kontakt-modal-box {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: var(--weiss);
+  border-radius: var(--radius-l);
+  box-shadow: var(--schatten-l);
+  padding: 34px 30px 30px;
+  text-align: center;
+  transform: translateY(14px) scale(0.98);
+  opacity: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.kontakt-modal.sichtbar .kontakt-modal-box {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.kontakt-modal-box h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+.kontakt-modal-text {
+  color: var(--grau);
+  font-size: 0.96rem;
+  margin-bottom: 22px;
+}
+
+.kontakt-modal-btn {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 14px 22px;
+  font-size: 1rem;
+}
+.kontakt-modal-btn + .kontakt-modal-btn { margin-top: 12px; }
+.kontakt-modal-btn svg { width: 20px; height: 20px; }
+
+.kontakt-modal-wa {
+  color: #128C7E;
+  border-color: #cdeae4;
+}
+.kontakt-modal-wa:hover {
+  color: #0e6f63;
+  border-color: #128C7E;
+}
+
+.kontakt-modal-nr {
+  margin-top: 18px;
+  font-size: 0.95rem;
+  color: var(--grau);
+  letter-spacing: 0.01em;
+}
+
+.kontakt-modal-schliessen {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--grau);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.kontakt-modal-schliessen svg { width: 20px; height: 20px; }
+.kontakt-modal-schliessen:hover {
+  background: var(--rose);
+  color: var(--beere-dunkel);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kontakt-modal-overlay,
+  .kontakt-modal-box { transition: none; }
+}

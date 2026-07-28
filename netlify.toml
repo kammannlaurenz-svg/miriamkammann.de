@@ -8,17 +8,113 @@
   directory = "netlify/functions"
 
 # --- Weiterleitungen alter Jimdo-URLs (301) auf die neuen Seiten ---
-# Verhindert 404 bei URLs, die Google noch aus der alten Seite indexiert hat.
+# Verhindert 404 bei URLs, die Google noch aus der alten Jimdo-Seite indexiert hat.
+# Jimdo nutzte Pfade teils mit, teils ohne Schrägstrich am Ende – beide Formen abgedeckt.
 # Neue alte URLs hier ergänzen (aus Google Search Console / site:miriamkammann.de).
+
+# Aesthetics / Mesotherapie (ä als Klartext UND URL-kodiert)
 [[redirects]]
   from = "/hyaluronsäure-mesotherapie/"
   to = "/aesthetics.html"
   status = 301
   force = true
-
 [[redirects]]
   from = "/hyalurons%C3%A4ure-mesotherapie/"
   to = "/aesthetics.html"
+  status = 301
+  force = true
+
+# Physiotherapie-Angebot
+[[redirects]]
+  from = "/physiotherapie/"
+  to = "/#physiotherapie"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/physiotherapie"
+  to = "/#physiotherapie"
+  status = 301
+  force = true
+
+# Hot Stone / Massage -> Wellness-Abschnitt
+[[redirects]]
+  from = "/hot-stone-massage/"
+  to = "/#wellness"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/hot-stone-massage"
+  to = "/#wellness"
+  status = 301
+  force = true
+
+# Team -> Praxis-Abschnitt
+[[redirects]]
+  from = "/team/"
+  to = "/#praxis"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/team"
+  to = "/#praxis"
+  status = 301
+  force = true
+
+# Kontakt -> Kontakt-Abschnitt
+[[redirects]]
+  from = "/kontakt/"
+  to = "/#kontakt"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/kontakt"
+  to = "/#kontakt"
+  status = 301
+  force = true
+
+# Impressum -> neue Impressumsseite
+[[redirects]]
+  from = "/impressum/"
+  to = "/impressum.html"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/impressum"
+  to = "/impressum.html"
+  status = 301
+  force = true
+
+# Datenschutz -> neue Datenschutzseite
+[[redirects]]
+  from = "/datenschutz/"
+  to = "/datenschutz.html"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/datenschutz"
+  to = "/datenschutz.html"
+  status = 301
+  force = true
+
+# Bewusst entfernte Angebote (Metabolic Balance, Ringana) -> Startseite
+[[redirects]]
+  from = "/metabolic-balance/"
+  to = "/"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/metabolic-balance"
+  to = "/"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/ringana/"
+  to = "/"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/ringana"
+  to = "/"
   status = 301
   force = true
 
